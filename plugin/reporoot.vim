@@ -1,7 +1,7 @@
 " Filename:      reporoot.vim
 " Description:   Change directory to the nearest repository root directory
 " Maintainer:    Jeremy Cantrell <jmcantrell@gmail.com>
-" Last Modified: Sun 2011-05-08 15:38:08 (-0400)
+" Last Modified: Sun 2011-05-08 15:56:35 (-0400)
 
 if exists("g:reporoot_loaded")
     finish
@@ -27,6 +27,10 @@ function! s:RepoRoot(force, ...) "{{{1
     execute 'cd '.dir
 endfunction
 
+function! s:GetFullPath(path) "{{{1
+    return resolve(fnamemodify(expand(a:path), ':p'))
+endfunction
+
 function! IsRepo(dir) "{{{1
     for type in ['svn', 'git', 'hg', 'bzr']
         if isdirectory(a:dir.'/.'.type)
@@ -41,7 +45,7 @@ function! GetRepoRelative(path) "{{{1
     if len(root) == 0
         return a:path
     endif
-    return substitute(expand(a:path), '^'.root.'/', '', '')
+    return substitute(s:GetFullPath(a:path), '^'.root.'/', '', '')
 endfunction
 
 function! GetRepoName(path) "{{{1
@@ -49,7 +53,7 @@ function! GetRepoName(path) "{{{1
 endfunction
 
 function! GetRepoRoot(path) "{{{1
-    let path = resolve(fnamemodify(expand(a:path), ':p'))
+    let path = s:GetFullPath(a:path)
     if filereadable(path)
         let path = fnamemodify(path, ':h')
     endif
