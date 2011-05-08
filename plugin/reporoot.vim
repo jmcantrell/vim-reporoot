@@ -1,11 +1,11 @@
 " Filename:      reporoot.vim
 " Description:   Change directory to the nearest repository root directory
 " Maintainer:    Jeremy Cantrell <jmcantrell@gmail.com>
-" Last Modified: Sun 2011-05-08 01:19:33 (-0400)
+" Last Modified: Sun 2011-05-08 01:47:38 (-0400)
 
-" if exists("g:reporoot_loaded")
-    " finish
-" endif
+if exists("g:reporoot_loaded")
+    finish
+endif
 
 let g:reporoot_loaded = 1
 
@@ -38,6 +38,9 @@ endfunction
 
 function! GetRepoRoot(dir)
     let dir = a:dir
+    if filereadable(dir)
+        let dir = fnamemodify(dir, ':h')
+    endif
     if isdirectory(dir.'/.svn')
         while isdirectory(dir.'/.svn')
             let dir = fnamemodify(dir, ':h')
