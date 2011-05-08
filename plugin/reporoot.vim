@@ -1,7 +1,7 @@
 " Filename:      reporoot.vim
 " Description:   Change directory to the nearest repository root directory
 " Maintainer:    Jeremy Cantrell <jmcantrell@gmail.com>
-" Last Modified: Sun 2011-05-08 01:47:38 (-0400)
+" Last Modified: Sun 2011-05-08 15:38:08 (-0400)
 
 if exists("g:reporoot_loaded")
     finish
@@ -12,13 +12,13 @@ let g:reporoot_loaded = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:Warn(message)
+function! s:Warn(message) "{{{1
     echohl WarningMsg
     echo a:message
     echohl None
 endfunction
 
-function! s:RepoRoot(force, ...)
+function! s:RepoRoot(force, ...) "{{{1
     let dirbak = a:0 == 0 ? getcwd() : a:1
     if a:force
         let dirbak = fnamemodify(dirbak, ':h')
@@ -27,7 +27,7 @@ function! s:RepoRoot(force, ...)
     execute 'cd '.dir
 endfunction
 
-function! IsRepo(dir)
+function! IsRepo(dir) "{{{1
     for type in ['svn', 'git', 'hg', 'bzr']
         if isdirectory(a:dir.'/.'.type)
             return 1
@@ -36,28 +36,37 @@ function! IsRepo(dir)
     return 0
 endfunction
 
-function! GetRepoRoot(dir)
-    let dir = a:dir
-    if filereadable(dir)
-        let dir = fnamemodify(dir, ':h')
+function! GetRepoRelative(path) "{{{1
+    let root = GetRepoRoot(a:path)
+    if len(root) == 0
+        return a:path
     endif
-    if isdirectory(dir.'/.svn')
-        while isdirectory(dir.'/.svn')
-            let dir = fnamemodify(dir, ':h')
+    return substitute(expand(a:path), '^'.root.'/', '', '')
+endfunction
+
+function! GetRepoName(path) "{{{1
+    return fnamemodify(GetRepoRoot(a:path), ':t')
+endfunction
+
+function! GetRepoRoot(path) "{{{1
+    let path = resolve(fnamemodify(expand(a:path), ':p'))
+    if filereadable(path)
+        let path = fnamemodify(path, ':h')
+    endif
+    if isdirectory(path.'/.svn')
+        while isdirectory(path.'/.svn')
+            let path = fnamemodify(path, ':h')
         endwhile
-        return dir
+        return path
     else
-        let dirbak = dir
-        while ! (dir == '/' || IsRepo(dir))
-            let dir = fnamemodify(dir, ':h')
+        while ! (path == '/' || IsRepo(path))
+            let path = fnamemodify(path, ':h')
         endwhile
-        if dir == '/'
-            return dirbak
-        else
-            return dir
-        endif
+        return path == '/' ? '' : path
     endif
 endfunction
+
+"}}}1
 
 command! -nargs=? -bang RepoRoot call s:RepoRoot(strlen('<bang>'), <f-args>)
 

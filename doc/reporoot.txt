@@ -8,11 +8,34 @@ INTRODUCTION                                       *reporoot* *reporoot.vim*
 The reporoot plugin provides a single command that attempts to find the
 nearest repository root and change the directory to it.
 
+It also provides some functions that are useful in other scripts.
+
+The supported VCS types are Git, Mercurial, Bazaar, and Subversion.
+
 COMMANDS                                           *reporoot-commands*
 
-:RepoRoot[!]    Change directory to the root of the source code repository.
-                If [!] is used, then don't consider the current directory when
-                checking for the presence of a repository.
+:RepoRoot[!]                                       *:RepoRoot*
+    Change directory to the root of the source code repository. If [!] is
+    used, then don't consider the current directory when checking for the
+    presence of a repository.
+
+FUNCTIONS                                          *reporoot-functions*
+
+IsRepo(path)                                       *IsRepo()*
+    Returns true if the passed path is a recognized VCS repository.
+    If path is a file, it will first get the directory before testing.
+
+GetRepoRoot(path)                                  *GetRepoRoot()*
+    Returns the root directory of the path's repository. If it's not a
+    repository, the path will be returned unchanged.
+
+GetRepoName(path)                                  *GetRepoName()*
+    Returns the name of the repository. Currently this is just the basename of
+    the repository root directory.
+
+GetRepoRelative(path)                              *GetRepoRelative()*
+    Returns the path of the given file or directory relative to the repository
+    root directory.
 
 CONFIGURATION                                      *reporoot-configuration*
 
