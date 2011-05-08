@@ -1,11 +1,11 @@
 " Filename:      reporoot.vim
 " Description:   Change directory to the nearest repository root directory
 " Maintainer:    Jeremy Cantrell <jmcantrell@gmail.com>
-" Last Modified: Thu 2010-10-28 22:48:19 (-0400)
+" Last Modified: Sun 2011-05-08 01:19:33 (-0400)
 
-if exists("g:reporoot_loaded")
-    finish
-endif
+" if exists("g:reporoot_loaded")
+    " finish
+" endif
 
 let g:reporoot_loaded = 1
 
@@ -18,7 +18,16 @@ function! s:Warn(message)
     echohl None
 endfunction
 
-function! s:IsRepo(dir)
+function! s:RepoRoot(force, ...)
+    let dirbak = a:0 == 0 ? getcwd() : a:1
+    if a:force
+        let dirbak = fnamemodify(dirbak, ':h')
+    endif
+    let dir = GetRepoRoot(dirbak)
+    execute 'cd '.dir
+endfunction
+
+function! IsRepo(dir)
     for type in ['svn', 'git', 'hg', 'bzr']
         if isdirectory(a:dir.'/.'.type)
             return 1
@@ -27,27 +36,22 @@ function! s:IsRepo(dir)
     return 0
 endfunction
 
-function! s:RepoRoot(force, ...)
-    let l:dir = a:0 == 0 ? getcwd() : a:1
-    if a:force
-        let l:dir = l:dir.'/..'
-    endif
-    if isdirectory(l:dir.'/.svn')
-        execute 'cd '.l:dir
-        while isdirectory('../.svn')
-            cd ..
+function! GetRepoRoot(dir)
+    let dir = a:dir
+    if isdirectory(dir.'/.svn')
+        while isdirectory(dir.'/.svn')
+            let dir = fnamemodify(dir, ':h')
         endwhile
+        return dir
     else
-        let l:dirbak = getcwd()
-        execute 'cd '.l:dir
-        while ! (getcwd() == '/' || s:IsRepo(getcwd()))
-            cd ..
+        let dirbak = dir
+        while ! (dir == '/' || IsRepo(dir))
+            let dir = fnamemodify(dir, ':h')
         endwhile
-        if getcwd() == '/'
-            execute 'cd '.l:dirbak
-            call Warn('No repository root directory found')
+        if dir == '/'
+            return dirbak
         else
-            pwd
+            return dir
         endif
     endif
 endfunction
