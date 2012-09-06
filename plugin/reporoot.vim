@@ -12,12 +12,6 @@ let g:reporoot_loaded = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! s:Warn(message) "{{{1
-    echohl WarningMsg
-    echo a:message
-    echohl None
-endfunction
-
 function! s:RepoRoot(force, ...) "{{{1
     let dirbak = a:0 == 0 ? getcwd() : a:1
     if a:force
