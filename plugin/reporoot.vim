@@ -52,8 +52,12 @@ function! GetRepoRoot(path) "{{{1
         let path = fnamemodify(path, ':h')
     endif
     if isdirectory(path.'/.svn')
-        while isdirectory(path.'/.svn')
-            let path = fnamemodify(path, ':h')
+        while 1
+            let parent_path = fnamemodify(path, ':h')
+            if ! isdirectory(parent_path.'/.svn') || parent_path == path
+                break
+            endif
+            let path = parent_path
         endwhile
         return path
     else
