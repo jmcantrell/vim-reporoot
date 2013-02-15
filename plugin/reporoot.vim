@@ -61,10 +61,17 @@ function! GetRepoRoot(path) "{{{1
         endwhile
         return path
     else
-        while ! (path == '/' || IsRepo(path))
+        let prevpath = ''
+        while 1
+            if IsRepo(path)
+                return path
+            endif
             let path = fnamemodify(path, ':h')
+            if path == prevpath
+                return '' " path did not change (e.g. '/' or 'fugitive:/')
+            endif
+            let prevpath = path
         endwhile
-        return path == '/' ? '' : path
     endif
 endfunction
 
