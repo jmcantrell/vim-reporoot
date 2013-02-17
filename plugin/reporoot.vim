@@ -47,6 +47,9 @@ function! GetRepoName(path) "{{{1
 endfunction
 
 function! GetRepoRoot(path) "{{{1
+    if a:path =~ '^fugitive:/'
+        return '' " skip any fugitive buffers early
+    endif
     let path = s:GetFullPath(a:path)
     if filereadable(path)
         let path = fnamemodify(path, ':h')
