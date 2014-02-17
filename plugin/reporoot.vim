@@ -26,7 +26,11 @@ function! s:GetFullPath(path) "{{{1
 endfunction
 
 function! IsRepo(dir) "{{{1
-    for type in ['svn', 'git', 'hg', 'bzr']
+    if isdirectory(a:dir.'/.git') || filereadable(a:dir.'/.git')
+        " .git might be a directory or file containing a path to a gitdir.
+        return 1
+    endif
+    for type in ['svn', 'hg', 'bzr']
         if isdirectory(a:dir.'/.'.type)
             return 1
         endif
